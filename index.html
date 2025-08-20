@@ -7,47 +7,62 @@
   <style>
     body {
       margin: 0; padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #0f0f0f);
       height: 100vh; display: flex; align-items: center; justify-content: center;
+      color: #eaeaea;
     }
     .glass-box {
-      background: rgba(255,255,255,0.1);
-      border-radius: 15px; padding: 30px; width: 400px;
-      text-align: center; color: white;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      backdrop-filter: blur(10px);
+      background: rgba(20, 20, 20, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 18px; padding: 35px; width: 400px;
+      text-align: center; color: #f5f5f5;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
       margin: 10px;
     }
-    h1 { margin-bottom: 20px; }
+    h1 { margin-bottom: 20px; letter-spacing: 2px; }
     input, select {
-      width: 90%; padding: 10px; margin: 8px 0;
-      border: none; border-radius: 8px;
+      width: 90%; padding: 12px; margin: 8px 0;
+      border: none; border-radius: 10px;
       outline: none; text-align: center;
+      background: #111; color: #fff;
+      border: 1px solid #333;
+    }
+    input:focus, select:focus {
+      border: 1px solid #6a11cb;
+      box-shadow: 0 0 8px #6a11cb;
     }
     button {
-      width: 95%; padding: 10px; margin-top: 15px;
-      border: none; border-radius: 8px;
-      background: #6a11cb; color: white; cursor: pointer;
+      width: 95%; padding: 12px; margin-top: 15px;
+      border: none; border-radius: 10px;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      color: white; font-weight: bold; cursor: pointer;
       transition: 0.3s;
     }
-    button:hover { background: #2575fc; }
-    .neon { color: #fff; text-shadow: 0 0 5px #6a11cb, 0 0 10px #2575fc; }
-    #logBox {
-      margin-top: 15px; padding: 10px;
-      background: rgba(0,0,0,0.4); border-radius: 10px;
-      height: 120px; overflow-y: auto; font-size: 13px; text-align: left;
+    button:hover { transform: scale(1.05); opacity: 0.9; }
+    .neon {
+      color: #9d4edd;
+      text-shadow: 0 0 8px #6a11cb, 0 0 16px #2575fc;
+      font-weight: bold;
     }
-    .log-success { color: #00ff99; }
-    .log-error { color: #ff5555; }
+    #logBox {
+      margin-top: 15px; padding: 12px;
+      background: rgba(0,0,0,0.6); border-radius: 12px;
+      border: 1px solid #222;
+      height: 140px; overflow-y: auto; font-size: 13px; text-align: left;
+      color: #dcdcdc;
+    }
+    .log-success { color: #4ade80; }
+    .log-error { color: #f87171; }
   </style>
 </head>
 <body>
 
 <!-- Login Box -->
 <div id="login-box" class="glass-box">
-  <img src="https://files.catbox.moe/vqzawn.jpg" alt="logo" width="100" style="border-radius:50%; margin-bottom:15px;">
-  <h1>X7S CRASH</h1>
+  <img src="https://files.catbox.moe/vqzawn.jpg" alt="logo" width="90" style="border-radius:50%; margin-bottom:15px; border: 2px solid #6a11cb; box-shadow:0 0 15px #6a11cb;">
+  <h1 class="neon">X7S CRASH</h1>
   <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
   <button id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
@@ -57,43 +72,26 @@
 <!-- Main Dashboard -->
 <div class="glass-box" id="dashboard" style="display:none;">
   <h1 class="neon">Dashboard</h1>
-  <p>Selamat datang, <span id="logged-user"></span> (<span id="logged-role"></span>)!</p>
+  <p>Welcome, <span id="logged-user"></span> ⚡</p>
   
   <select id="bugType">
-    <option value="delay">Delay</option>
-    <option value="crash">Crash</option>
-    <option value="invis">Invis</option>
+    <option value="Delay">Delay</option>
+    <option value="Crash">Crash</option>
+    <option value="Invis">Invis</option>
   </select>
   
   <input type="text" id="targetNumber" placeholder="628xxxx">
   <button onclick="sendAttack()"><i class="fas fa-bug"></i> Kirim Bug</button>
-  <button onclick="logout()" style="background:#e63946;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  <button onclick="logout()" style="background:linear-gradient(90deg,#ff1744,#d50000);"><i class="fas fa-sign-out-alt"></i> Logout</button>
   
   <div id="logBox"></div>
 </div>
 
-<!-- Admin User Management -->
-<div class="glass-box" id="admin-panel" style="display:none;">
-  <h2>👑 User Management</h2>
-  <h3>Tambah User</h3>
-  <input type="text" id="newUser" placeholder="Username baru">
-  <input type="password" id="newPass" placeholder="Password baru">
-  <select id="newRole">
-    <option value="user">User</option>
-    <option value="admin">Admin</option>
-  </select>
-  <button onclick="addUser()"><i class="fas fa-user-plus"></i> Tambah User</button>
-
-  <h3>Hapus User</h3>
-  <input type="text" id="delUser" placeholder="Username yg dihapus">
-  <button onclick="deleteUser()"><i class="fas fa-user-minus"></i> Hapus User</button>
-</div>
-
 <script>
-// daftar user awal
+// daftar user (static)
 let USERS = [
-  { username: "xyroo", password: "1111", role: "admin" },
-  { username: "admin", password: "2222", role: "user" }
+  { username: "xyroo", password: "1111" },
+  { username: "admin", password: "2222" }
 ];
 
 // API untuk tiap bug
@@ -105,11 +103,9 @@ const BUG_API = {
 
 const loginBox = document.getElementById('login-box');
 const dashboard = document.getElementById('dashboard');
-const adminPanel = document.getElementById('admin-panel');
 const loginBtn = document.getElementById('loginBtn');
 const loginResult = document.getElementById('login-result');
 const loggedUser = document.getElementById('logged-user');
-const loggedRole = document.getElementById('logged-role');
 const logBox = document.getElementById('logBox');
 
 let currentUser = null;
@@ -125,15 +121,9 @@ loginBtn.addEventListener('click', () => {
     dashboard.style.display = 'block';
     currentUser = found;
     loggedUser.innerText = found.username;
-    loggedRole.innerText = found.role;
-
-    // hanya admin yg bisa lihat user management
-    if (found.role === "admin") {
-      adminPanel.style.display = "block";
-    }
   } else {
     loginResult.innerText = '❌ Username atau password salah!';
-    loginResult.style.color = 'crimson';
+    loginResult.style.color = '#f87171';
   }
 });
 
@@ -181,46 +171,8 @@ function sendAttack() {
 
 function logout() {
   dashboard.style.display = 'none';
-  adminPanel.style.display = 'none';
   loginBox.style.display = 'block';
   currentUser = null;
-}
-
-// === Admin Functions ===
-function addUser() {
-  if (!currentUser || currentUser.role !== "admin") {
-    alert("❌ Hanya admin yang bisa menambah user!");
-    return;
-  }
-  const uname = document.getElementById("newUser").value.trim();
-  const pass = document.getElementById("newPass").value.trim();
-  const role = document.getElementById("newRole").value;
-
-  if (!uname || !pass) {
-    alert("⚠️ Username dan password tidak boleh kosong!");
-    return;
-  }
-  if (USERS.find(u => u.username === uname)) {
-    alert("❌ Username sudah ada!");
-    return;
-  }
-  USERS.push({ username: uname, password: pass, role: role });
-  alert("✅ User " + uname + " berhasil dibuat sebagai " + role);
-}
-
-function deleteUser() {
-  if (!currentUser || currentUser.role !== "admin") {
-    alert("❌ Hanya admin yang bisa menghapus user!");
-    return;
-  }
-  const uname = document.getElementById("delUser").value.trim();
-  const idx = USERS.findIndex(u => u.username === uname);
-  if (idx === -1) {
-    alert("❌ User tidak ditemukan!");
-    return;
-  }
-  USERS.splice(idx, 1);
-  alert("✅ User " + uname + " berhasil dihapus!");
 }
 </script>
 
